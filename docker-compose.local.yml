@@ -1,0 +1,26 @@
+#version: '3.8'
+
+# docker-compose.local.yml
+# Use este arquivo para substituir ou adicionar configurações para o ambiente local.
+# Exemplo: Mapear portas diferentes, montar volumes para desenvolvimento, etc.
+
+services:
+  core_service:
+    ports:
+      - "8001:8000" # Exemplo: Mapear para porta 8001 localmente para evitar conflitos
+    environment:
+      - PYTHONUNBUFFERED=1 # Garante que os logs do Python apareçam imediatamente
+      - RELOAD_DELAY=1 # Ajuste para uvicorn --reload
+    # Adicione outras configurações específicas para o ambiente local aqui
+
+  # Se você estiver usando o banco de dados PostgreSQL localmente via Docker:
+  # db:
+  #   ports:
+  #     - "5433:5432" # Mapear para uma porta local diferente se a 5432 estiver em uso
+
+  # Se você estiver usando MongoDB localmente via Docker:
+  # mongo:
+  #   ports:
+  #     - "27018:27017" # Mapear para uma porta local diferente
+
+# Para usar: docker-compose -f docker-compose.yml -f docker-compose.local.yml up

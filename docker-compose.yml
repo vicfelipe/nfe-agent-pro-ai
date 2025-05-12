@@ -1,0 +1,89 @@
+#version: '3.8'
+
+services:
+  core_service:
+    build:
+      context: .
+      dockerfile: Dockerfile # Você precisará criar este Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env # Arquivo para variáveis de ambiente (ex: chaves de API, URLs de DB)
+    volumes:
+      - ./core_service:/app/core_service
+      - ./database:/app/database
+      - ./cloud:/app/cloud
+      - ./llm_gateway:/app/llm_gateway
+      - ./bot_framework:/app/bot_framework
+      - ./config_template.toml:/app/config.toml # Monta o config como config.toml
+      - ./llm_config.yaml:/app/llm_config.yaml
+    depends_on:
+      - db # Exemplo se você tiver um serviço de banco de dados no Docker Compose
+    command: uvicorn core_service.main:app --host 0.0.0.0 --port 8002 --reload
+
+  # Exemplo de serviço de banco de dados PostgreSQL (descomente e configure se necessário)
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: POSTGRES_USER
+      POSTGRES_PASSWORD: POSTGRES_PASSWORD
+      POSTGRES_DB: POSTGRES_DB
+
+  chat_interface_service:
+    build:
+      context: .
+      dockerfile: Dockerfile # Reutiliza o Dockerfile existente
+    ports:
+      - "8501:8501" # Porta padrão do Streamlit
+    volumes:
+      - ./chat_interface:/app/chat_interface
+      - ./llm_gateway:/app/llm_gateway
+      - ./core_service:/app/core_service
+      - ./config_template.toml:/app/config.toml
+      - ./llm_config.yaml:/app/llm_config.yaml
+    command: streamlit run chat_interface/main.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS false --server.enableXsrfProtection false
+    depends_on:
+      - core_service # Depende do core_service para o LLM Gateway
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Exemplo de serviço MongoDB (descomente e configure se necessário)
+  # mongo:
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: user
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+
+# Exemplo de serviço Ollama (descomente e configure se necessário)
+# ollama:
+#   image: ollama/ollama:latest
+#   ports:
+#     - "11434:11434"
+#   volumes:
+#     - ollama_data:/root/.ollama
+#   # Para usar GPUs, você pode precisar de configurações adicionais dependendo do seu ambiente
+#   # deploy:
+#   #   resources:
+#   #     reservations:
+#   #       devices:
+#   #         - driver: nvidia
+#   #           count: 1
+#   #           capabilities: [gpu]
+
+volumes:
+  postgres_data: {}
+  mongo_data: {}
+  ollama_data: {}
+
+# Nota: Este é um docker-compose.yml básico.
+# Você precisará criar um Dockerfile para o serviço 'core_service'.
+# As configurações de banco de dados e LLM (Ollama) são exemplos e precisam ser ajustadas.
+# O arquivo .env deve conter as variáveis de ambiente necessárias.

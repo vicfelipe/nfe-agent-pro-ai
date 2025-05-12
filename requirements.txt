@@ -1,0 +1,20 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+toml
+sqlalchemy
+psycopg2-binary # Driver para PostgreSQL com SQLAlchemy
+motor
+boto3
+azure-storage-blob
+google-cloud-storage
+PyYAML
+pytest
+requests
+streamlit
+openai
+
+# Para o LLM Gateway (descomente e instale conforme necessário)
+# openai
+# ollama # Se houver uma biblioteca Python oficial, ou use 'requests' para API HTTP

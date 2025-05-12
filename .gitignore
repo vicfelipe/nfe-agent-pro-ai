@@ -1,0 +1,12 @@
+# Ignore sensitive configuration files
+llm_config.yaml
+.env
+config_template.toml
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+# Ignore virtual environment directories
+venv/
+# Ignore system files
+.DS_Store
+Thumbs.db
